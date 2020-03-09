@@ -5,19 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.it.androidexpandablelistview.adapter.ChapterAdapter;
 import com.it.androidexpandablelistview.bean.Chapter;
-import com.it.androidexpandablelistview.bean.ChapterLab;
-
-import org.w3c.dom.Text;
+import com.it.androidexpandablelistview.biz.ChapterBiz;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +28,34 @@ public class MainActivity extends AppCompatActivity  {
     private BaseExpandableListAdapter mAdapter;
 
     private List<Chapter> mDatas=new ArrayList<>();
+
+    private ChapterBiz mChapterBiz =new ChapterBiz();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI();
         initEvents();
+        loadDatas();
     }
+
+    private void loadDatas() {
+        mChapterBiz.loadDatas(this,new ChapterBiz.CallBack(){
+
+            @Override
+            public void onSuccess(List<Chapter> chapterList) {
+                mDatas.addAll(chapterList);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailed(Exception ex) {
+                ex.printStackTrace();
+            }
+        },false);
+    }
+
 
     private void initUI() {
         mBtnRefresh = findViewById(R.id.id_btn_refresh);
@@ -47,7 +64,7 @@ public class MainActivity extends AppCompatActivity  {
 //        iv_life = findViewById(R.id.iv_life);
         mExpandableListView=findViewById(R.id.id_expandablelistview);
         mDatas.clear();
-        mDatas.addAll(ChapterLab.generateMockDatas());
+//        mDatas.addAll(ChapterLab.generateMockDatas());
         mAdapter=new ChapterAdapter(this,mDatas);
         mExpandableListView.setAdapter(mAdapter);
     }

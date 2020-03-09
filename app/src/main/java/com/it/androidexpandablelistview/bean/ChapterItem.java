@@ -8,6 +8,11 @@ public class ChapterItem {
     private String name;
     private int pid;
 
+    public static final String TABLE_NAME="tb_chapter_item";
+    public static final  String COL_ID="_id";
+    public static final  String COL_NAME="name";
+    public static final  String COL_PID="pid";
+
     public ChapterItem(){
 //        默认构造方法
     }
@@ -40,5 +45,14 @@ public class ChapterItem {
 
     public void setPid(int pid) {
         this.pid = pid;
+    }
+
+    @Override
+    public String toString() {
+        return "ChapterItem{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", pid=" + pid +
+                '}';
     }
 }
