@@ -16,64 +16,71 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.callback.Callback;
-
 public class ChapterBiz {
     private ChapterDao mChapterDao=new ChapterDao();
     public void loadDatas(final Context context, final CallBack callBack, final boolean useCache) {
 
-        AsyncTask<Boolean, Void, List<Chapter>> asyncTask = new AsyncTask<Boolean, Void, List<Chapter>>() {
+        AsyncTask<Boolean, Void, List<Chapter>> asyncTask =
+//                new AsyncTask<Boolean, Void, List<Chapter>>() {
+                  new AsyncTask<Boolean, Void, List<Chapter>>() {
+
             private Exception ex;
             @Override
-            protected List<Chapter> doInBackground(Boolean... booleans) {
-                boolean isUseCache = booleans[0];
-                List<Chapter> chapterList = new ArrayList<>();
-                try {
-                    if (isUseCache) {
-                        //                    characterList.addAll()
-                        List<Chapter> chapterListFromDb= mChapterDao.loadFromDb(context);
-                        Log.e("sange","ChapterListFromDb="+chapterListFromDb);
-                        chapterList.addAll(chapterListFromDb);
-                    }
-//              load from net
-                    if (chapterList.isEmpty()) {
-                        //              load from net
-                        //                    todo cache do  db
-                        List<Chapter> chapterListFromNet=loadFromNet(context);
-                        mChapterDao.insert2Db(context,chapterListFromNet);
-                        chapterList.addAll(chapterListFromNet);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    this.ex=ex;  // 发生异常给ex赋值
-                }
-                return chapterList;
-
-
-            }
-
-            @Override
             protected void onPostExecute(List<Chapter> chapters) {
-                if (ex!= null) {
+                if (ex != null) {
                     callBack.onFailed(ex);
                 } else {
                     callBack.onSuccess(chapters);
                 }
             }
+            @Override
+            protected List<Chapter> doInBackground(Boolean... booleans) {
+                boolean isUseCache = booleans[0];
+               final List<Chapter> chapters = new ArrayList<>();
+                try {
+//                    从缓存中读取
+                    if (booleans[0]){
+                        chapters.addAll(mChapterDao.loadFromDb(context));
+                    }
+                    if (isUseCache) {
+                        //                    characterList.addAll()
+                        List<Chapter> chapterListFromDb= mChapterDao.loadFromDb(context);
+                        Log.e("sange","ChapterListFromDb="+chapterListFromDb);
+                        chapters.addAll(chapterListFromDb);
+                    }
+//              load from net
+                    if (chapters.isEmpty()) {
+                        //              load from net
+                        //                    todo cache do  db
+                        final List<Chapter> chaptersListFromNet=loadFromNet(context);
+                        mChapterDao.insertToDb(context,chaptersListFromNet);
+                        chapters.addAll(chaptersListFromNet);
+                    }
+                } catch (final Exception e) {
+                    e.printStackTrace();
+                    ex=e;  // 发生异常给ex赋值
+                }
+                return chapters;
+
+
+            }
+
+
         };
         asyncTask.execute(useCache);
 
     }
 
     private List<Chapter> loadFromNet(Context context) {
-        List<Chapter> chapterList=new ArrayList<>();
-        String url="http://www.imooc.com/api/expandablelistview";
+        final String url="http://www.imooc.com/api/expandablelistview";
 //        1.发请求，获取String数据
         String content= HttpUtils.doGet(url);
+        final List<Chapter> chapterList=new ArrayList<>();
         Log.e("sange","=====null;===="+content);
         if (content != null){
 //        2.content -> List<Chapter>
-            chapterList=parseContent(content);
+//            chapterList=parseContent(content);
+            mChapterDao.insertToDb(context,chapterList);
             Log.e("sange","==parse finish chapterlist=="+chapterList);
         }
         return chapterList;

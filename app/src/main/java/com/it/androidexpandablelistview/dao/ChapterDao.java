@@ -44,7 +44,7 @@ public class ChapterDao {
         }
         return chapterList;
     }
-    public void insert2Db(Context context,List<Chapter> chapterList){
+    public void insertToDb(Context context, List<Chapter> chapterList){
 
         if (context== null){
             throw  new IllegalArgumentException("context can non be null");
@@ -73,7 +73,7 @@ public class ChapterDao {
                 contentValues =new ContentValues();
                 contentValues.put(ChapterItem.COL_ID,chapterItem.getId());
                 contentValues.put(ChapterItem.COL_NAME,chapterItem.getName());
-                contentValues.put(ChapterItem.COL_PID,chapterItem.getPid());
+                contentValues.put(ChapterItem.COL_PID,chapter.getId());
                 db.insertWithOnConflict(ChapterItem.TABLE_NAME,
                         null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
             }

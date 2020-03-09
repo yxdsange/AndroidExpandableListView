@@ -30,22 +30,22 @@ public class MainActivity extends AppCompatActivity  {
     private List<Chapter> mDatas=new ArrayList<>();
 
     private ChapterBiz mChapterBiz =new ChapterBiz();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI();
         initEvents();
-        loadDatas();
+        loadDatas(false);
     }
 
-    private void loadDatas() {
+    private void loadDatas(boolean useCache) {
         mChapterBiz.loadDatas(this,new ChapterBiz.CallBack(){
 
             @Override
             public void onSuccess(List<Chapter> chapterList) {
                 mDatas.addAll(chapterList);
+                mDatas.clear();
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -70,6 +70,15 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void initEvents() {
+
+        mBtnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadDatas(false);
+            }
+        });
+
+
         mExpandableListView.setOnChildClickListener(
                 new ExpandableListView.OnChildClickListener() {
             @Override
